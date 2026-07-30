@@ -334,17 +334,20 @@ document.getElementById("confirmBtn").onclick = async () => {
 
     localStorage.setItem("krishnaCall", JSON.stringify(data));
 
-    try {
-        await fetch("https://script.google.com/macros/s/AKfycbzcyPFqcQm24CJtrA7e7U6YajRB_YA8Ur5kvDLtGvhmxpky7O-YFpq_-Yttli8SRxgrtg/exec", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(data)
-        });
-    } catch (e) {
-        console.log("No backend connected.");
-    }
+    const formData = new FormData();
+
+	Object.keys(data).forEach(key => {
+		formData.append(key, data[key]);
+	});
+
+	try {
+		await fetch("https://script.google.com/macros/s/AKfycbxSKA844oYBXxCITbqqP5pytYSjRmWBJhG6akZsbGKUF1wUUOqds4Z9Yk4ZNNS4LT2FdQ/exec", {
+			method: "POST",
+			body: formData
+		});
+	} catch (e) {
+    console.log(e);
+	}
 
     document.getElementById("page2").classList.remove("active");
     document.getElementById("page3").classList.add("active");
