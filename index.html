@@ -302,7 +302,7 @@ document.getElementById("confirmBtn").onclick = async () => {
     localStorage.setItem("krishnaCall", JSON.stringify(data));
 
     try {
-        await fetch("/save", {
+        await fetch("https://script.google.com/macros/s/AKfycbxT82KnA7l6Ts7Mzdo9SNEcebjI3LOgNeKbLUN2GW1Ncw7wfeR70vQVIHNufjCknJ8-7A/exec", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
