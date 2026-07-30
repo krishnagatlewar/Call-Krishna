@@ -120,6 +120,74 @@ color:white;
 transform:scale(1.03);
 }
 
+.successPage{
+    position:relative;
+    width:100%;
+    height:75vh;
+    overflow:hidden;
+}
+
+.successContent{
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    text-align:center;
+    width:90%;
+    z-index:5;
+}
+
+.successContent h1{
+    font-size:48px;
+    color:white;
+    margin-bottom:15px;
+}
+
+.successContent h2{
+    color:white;
+    font-size:30px;
+    margin-bottom:20px;
+}
+
+.successContent p{
+    color:white;
+    font-size:20px;
+    line-height:1.7;
+}
+
+.bigHeart{
+    font-size:70px;
+    margin-top:25px;
+    animation:pulse 1.5s infinite;
+}
+
+@keyframes pulse{
+    0%{transform:scale(1);}
+    50%{transform:scale(1.2);}
+    100%{transform:scale(1);}
+}
+
+@keyframes fall{
+
+    from{
+        transform:translateY(-50px) rotate(0deg);
+        opacity:1;
+    }
+
+    to{
+        transform:translateY(900px) rotate(360deg);
+        opacity:0;
+    }
+
+}
+
+.heartContainer{
+    position:absolute;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+}
+
 </style>
 
 </head>
@@ -145,13 +213,37 @@ transform:scale(1.03);
 
 <div id="page2" class="page">
 
-<h1>📞 Schedule the Call</h1>
+<h1>💕 Pick a Date & Time</h1>
+<p>Choose when you'd like to talk to Krishna ❤️</p>
 
+
+<label for="date" class="inputLabel">📅 Select Date</label>
 <input type="date" id="date">
 
+<label for="time" class="inputLabel">🕒 Select Time</label>
 <input type="time" id="time">
 
 <button id="confirmBtn">Confirm</button>
+
+</div>
+
+<div id="page3" class="page successPage">
+
+    <div class="heartContainer"></div>
+
+    <div class="successContent">
+        <h1>💜 Yay!!</h1>
+
+        <h2>Krishna will wait for your call ❤️</h2>
+
+        <p>
+            Thank you for making his day a little more special.<br><br>
+            Looking forward to talking with you ✨
+        </p>
+
+        <div class="bigHeart">💖</div>
+
+    </div>
 
 </div>
 
@@ -191,61 +283,67 @@ document.getElementById("page2").classList.add("active");
 
 };
 
-document.getElementById("confirmBtn").onclick=async()=>{
+document.getElementById("confirmBtn").onclick = async () => {
 
-const date=document.getElementById("date").value;
-const time=document.getElementById("time").value;
+    const date = document.getElementById("date").value;
+    const time = document.getElementById("time").value;
 
-if(!date || !time){
-alert("Please select both date and time.");
-return;
-}
+    if (!date || !time) {
+        alert("Please select both date and time.");
+        return;
+    }
 
-const data={
-date,
-time,
-createdAt:new Date().toISOString()
+    const data = {
+        date,
+        time,
+        createdAt: new Date().toISOString()
+    };
+
+    localStorage.setItem("krishnaCall", JSON.stringify(data));
+
+    try {
+        await fetch("/save", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        });
+    } catch (e) {
+        console.log("No backend connected.");
+    }
+
+    document.getElementById("page2").classList.remove("active");
+    document.getElementById("page3").classList.add("active");
+
+    confetti({
+        particleCount: 250,
+        spread: 120,
+        origin: { y: 0.6 }
+    });
 };
 
-localStorage.setItem("krishnaCall",JSON.stringify(data));
+function createHeart(){
 
-try{
-await fetch("/save",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify(data)
-});
-}catch(e){
-console.log("No backend connected. Saved locally.");
+    const heart=document.createElement("div");
+
+    heart.innerHTML="❤️";
+
+    heart.style.position="absolute";
+    heart.style.left=Math.random()*100+"%";
+    heart.style.top="-30px";
+    heart.style.fontSize=(20+Math.random()*25)+"px";
+    heart.style.animation=`fall ${4+Math.random()*3}s linear forwards`;
+
+    document.querySelector(".heartContainer").appendChild(heart);
+
+    setTimeout(()=>{
+        heart.remove();
+    },7000);
+
 }
 
-alert("Krishna will wait for your call!!");
-
-confetti({
-particleCount:220,
-spread:120,
-origin:{y:.6}
-});
-
-setTimeout(()=>{
-confetti({
-particleCount:150,
-angle:60,
-spread:70,
-origin:{x:0}
-});
-
-confetti({
-particleCount:150,
-angle:120,
-spread:70,
-origin:{x:1}
-});
-},300);
-
-};
+setInterval(createHeart,300);
 
 </script>
 
