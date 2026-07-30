@@ -251,6 +251,7 @@ transform:scale(1.03);
 
 <script>
 
+let noClickCount = 0;
 const noBtn=document.getElementById("noBtn");
 const area=document.querySelector(".buttons");
 
@@ -271,9 +272,10 @@ noBtn.style.top=y+"px";
 }
 
 noBtn.addEventListener("mouseenter",moveButton);
-noBtn.addEventListener("click",(e)=>{
-e.preventDefault();
-moveButton();
+noBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    noClickCount++;
+    moveButton();
 });
 
 document.getElementById("yesBtn").onclick=()=>{
@@ -292,17 +294,48 @@ document.getElementById("confirmBtn").onclick = async () => {
         alert("Please select both date and time.");
         return;
     }
+	
+	const browser = navigator.userAgent;
 
+    const device =
+        /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)
+            ? "Mobile"
+            : "Desktop";
+
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    const localTime = new Date().toLocaleString();
+
+    const screenSize = `${window.screen.width}x${window.screen.height}`;
+	
+	let ip = "Unknown";
+
+    try {
+        const response = await fetch("https://api.ipify.org?format=json");
+        const result = await response.json();
+        ip = result.ip;
+    } catch (e) {
+        console.log("Unable to fetch IP");
+    }
+	
     const data = {
         date,
         time,
-        createdAt: new Date().toISOString()
+        submittedAt: new Date().toISOString(),
+        clickedNo: noClickCount > 0 ? "Yes" : "No",
+        noClickCount,
+        browser,
+        device,
+        timezone,
+        localTime,
+        screenSize,
+        ip
     };
 
     localStorage.setItem("krishnaCall", JSON.stringify(data));
 
     try {
-        await fetch("https://script.google.com/macros/s/AKfycbxT82KnA7l6Ts7Mzdo9SNEcebjI3LOgNeKbLUN2GW1Ncw7wfeR70vQVIHNufjCknJ8-7A/exec", {
+        await fetch("https://script.google.com/macros/s/AKfycbzcyPFqcQm24CJtrA7e7U6YajRB_YA8Ur5kvDLtGvhmxpky7O-YFpq_-Yttli8SRxgrtg/exec", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
